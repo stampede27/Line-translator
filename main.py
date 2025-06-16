@@ -1,10 +1,10 @@
 from flask import Flask, request
-from replit import web
 import requests
 import os
 
 app = Flask(__name__)
 
+# Read environment variables (make sure to set these in Railway dashboard)
 LINE_CHANNEL_ACCESS_TOKEN = os.environ['LINE_CHANNEL_ACCESS_TOKEN']
 LINE_CHANNEL_SECRET = os.environ['LINE_CHANNEL_SECRET']
 OPENAI_API_KEY = os.environ['OPENAI_API_KEY']
@@ -24,7 +24,6 @@ def webhook():
             reply_token = event['replyToken']
 
             translated_text = ask_chatgpt("Translate to English: " + user_text)
-
             reply_message(reply_token, translated_text)
 
     return "OK"
@@ -54,5 +53,8 @@ def ask_chatgpt(prompt):
     }
     res = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=data)
     return res.json()['choices'][0]['message']['content'].strip()
-    
-web.run(app)
+
+# This is needed to run on Railway (or any non-Replit host)
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
