@@ -1,5 +1,2 @@
 flask
 requests
-openai
-line-bot-sdk
-google-generativeai
