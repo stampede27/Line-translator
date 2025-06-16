@@ -52,7 +52,17 @@ def ask_chatgpt(prompt):
         "messages": [{"role": "user", "content": prompt}]
     }
     res = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=data)
-    return res.json()['choices'][0]['message']['content'].strip()
+
+    try:
+        result = res.json()
+        if 'choices' in result:
+            return result['choices'][0]['message']['content'].strip()
+        else:
+            print("Error from OpenAI:", result)  # 👈 Logs the full response
+            return "Sorry, I couldn't understand that."
+    except Exception as e:
+        print("Exception while contacting OpenAI:", e)
+        return "There was an error processing your request."
 
 # This is needed to run on Railway (or any non-Replit host)
 if __name__ == "__main__":
