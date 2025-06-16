@@ -46,17 +46,25 @@ def reply_message(token, message):
     requests.post("https://api.line.me/v2/bot/message/reply", headers=headers, json=body)
 
 def ask_gemini(prompt):
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={GEMINI_API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateText?key={GEMINI_API_KEY}"
     headers = {"Content-Type": "application/json"}
     data = {
-        "contents": [{"parts": [{"text": prompt}]}]
+        "prompt": {
+            "text": prompt
+        }
     }
 
     try:
         response = requests.post(url, headers=headers, json=data)
         result = response.json()
+        print("Gemini API response:", result)  # Add this for debugging
 
-        return result['candidates'][0]['content']['parts'][0]['text'].strip()
+        if 'candidates' in result and len(result['candidates']) > 0:
+            return result['candidates'][0]['output'].strip()
+        else:
+            print("No 'candidates' field or empty candidates in Gemini response.")
+            return None
+
     except Exception as e:
         print("Error from Gemini:", e)
         return None
