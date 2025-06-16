@@ -4,14 +4,13 @@ import os
 
 app = Flask(__name__)
 
-# Read environment variables (make sure to set these in Railway dashboard)
 LINE_CHANNEL_ACCESS_TOKEN = os.environ['LINE_CHANNEL_ACCESS_TOKEN']
 LINE_CHANNEL_SECRET = os.environ['LINE_CHANNEL_SECRET']
-OPENAI_API_KEY = os.environ['OPENAI_API_KEY']
+GEMINI_API_KEY = os.environ['GEMINI_API_KEY']  # Set this in Railway or your environment
 
 @app.route("/")
 def home():
-    return "LINE Bot Webhook is running!"
+    return "LINE Translator Bot with Gemini is running!"
 
 @app.route("/webhook", methods=['POST'])
 def webhook():
@@ -19,12 +18,16 @@ def webhook():
     events = payload.get('events', [])
 
     for event in events:
-        if event['type'] == 'message':
+        if event['type'] == 'message' and event['message']['type'] == 'text':
             user_text = event['message']['text']
             reply_token = event['replyToken']
 
-            translated_text = ask_chatgpt("Translate to English: " + user_text)
-            reply_message(reply_token, translated_text)
+            translated_text = ask_gemini("Translate to English: " + user_text)
+
+            if translated_text:
+                reply_message(reply_token, translated_text)
+            else:
+                reply_message(reply_token, "Sorry, I couldn’t understand that.")
 
     return "OK"
 
@@ -42,29 +45,25 @@ def reply_message(token, message):
     }
     requests.post("https://api.line.me/v2/bot/message/reply", headers=headers, json=body)
 
-def ask_chatgpt(prompt):
-    headers = {
-        "Authorization": f"Bearer {OPENAI_API_KEY}",
-        "Content-Type": "application/json"
-    }
-    data = {
-        "model": "gpt-3.5-turbo",
-        "messages": [{"role": "user", "content": prompt}]
-    }
-    res = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=data)
-
+def ask_gemini(prompt):
     try:
-        result = res.json()
-        if 'choices' in result:
-            return result['choices'][0]['message']['content'].strip()
-        else:
-            print("Error from OpenAI:", result)  # 👈 Logs the full response
-            return "Sorry, I couldn't understand that."
-    except Exception as e:
-        print("Exception while contacting OpenAI:", e)
-        return "There was an error processing your request."
+        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + GEMINI_API_KEY
+        headers = {
+            "Content-Type": "application/json"
+        }
+        data = {
+            "contents": [
+                {
+                    "parts": [
+                        {"text": prompt}
+                    ]
+                }
+            ]
+        }
+        response = requests.post(url, headers=headers, json=data)
+        res_json = response.json()
 
-# This is needed to run on Railway (or any non-Replit host)
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+        return res_json['candidates'][0]['content']['parts'][0]['text'].strip()
+    except Exception as e:
+        print("Error from Gemini:", e)
+        return None
