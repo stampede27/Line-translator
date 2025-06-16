@@ -23,9 +23,9 @@ def webhook():
             user_text = event['message']['text']
             reply_token = event['replyToken']
 
-            translated_text = ask_gemini("Translate this to English:\n" + user_text)
+            translated_text = ask_gemini("Translate this to Traditional Chinese like a local Taiwanese:\n" + user_text)
             if not translated_text:
-                translated_text = "Sorry, I couldn't translate that."
+                translated_text = "Sorry, youdepunggol."
 
             reply_message(reply_token, translated_text)
 
