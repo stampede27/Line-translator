@@ -108,3 +108,6 @@ def reply_message(token, message):
         }]
     }
     requests.post("https://api.line.me/v2/bot/message/reply", headers=headers, json=body)
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
