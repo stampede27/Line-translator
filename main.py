@@ -25,7 +25,7 @@ def webhook():
 
             translated_text = ask_gemini("Translate this to Traditional Chinese like a local Taiwanese:\n" + user_text)
             if not translated_text:
-                translated_text = "Sorry, youdepunggol."
+                translated_text = "PUTANGINA MO. with respect 😁."
 
             reply_message(reply_token, translated_text)
 
