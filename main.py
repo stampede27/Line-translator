@@ -66,15 +66,18 @@ def process_message(text):
 
     if lang == "en":
         prompt = (
-            f"You are a bilingual assistant. Rephrase this English sentence without changing its meaning, "
-            f"and translate it into Traditional Chinese in slightly more formal way.\n\n"
+            "You are a bilingual assistant. Rephrase the following English sentence "
+            "without changing its meaning, then translate it to Traditional Chinese. "
+            "Do not add any explanation or suggestions. Only output the following format:\n\n"
+            "Rephrase sentence:\n{rephrased sentence}\n\nTranslation in Chinese:\n{chinese sentence}\n\n"
             f"Sentence: {cleaned}"
         )
     else:
         prompt = (
-            f"You are a bilingual assistant. Show the original Traditional Chinese sentence, "
-            f"and translate it to English clearly.\n\n"
-            f"Sentence: {cleaned}"
+            "你是一個雙語助理。首先顯示使用者輸入的原始中文句子，然後將它清楚翻譯為英文。"
+            "不要加入任何說明或建議。只輸出以下格式：\n\n"
+            "原始中文：\n{original sentence}\n\n英文翻譯：\n{english translation}\n\n"
+            f"句子：{cleaned}"
         )
 
     gemini_response = query_gemini(prompt)
