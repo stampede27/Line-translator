@@ -15,7 +15,7 @@ GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemin
 
 @app.route("/")
 def home():
-    return "LINE Bot Webhook is running with Gemini 2.0 Flash"
+    return "LINE Bot Webhook is running with Gemini 2.0"
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
