@@ -37,7 +37,6 @@ def webhook():
 
             response_text = process_message(text)
             if response_text:
-                # Reply and store reference
                 reply_message(reply_token, response_text)
                 message_map[message_id] = {
                     "userId": user_id,
@@ -61,9 +60,12 @@ def is_noise(text):
     return False
 
 def clean_text(text):
-    text = re.sub(r"@\w+", "", text)
-    text = re.sub(r"\b[A-Z]{2,}\b", "", text)
-    return text.strip()
+    # Extract mentions and remove them
+    mentions = re.findall(r"@\w+", text)
+    cleaned = re.sub(r"@\w+", "", text)
+    # Remove ALL UPPERCASE abbreviations
+    cleaned = re.sub(r"\b[A-Z]{2,}\b", "", cleaned)
+    return cleaned.strip(), mentions
 
 def detect_language(text):
     zh_count = len(re.findall(r"[\u4e00-\u9fff]", text))
@@ -71,7 +73,7 @@ def detect_language(text):
     return "zh" if zh_count > en_count else "en"
 
 def process_message(text):
-    cleaned = clean_text(text)
+    cleaned, mentions = clean_text(text)
     lang = detect_language(cleaned)
 
     if lang == "en":
@@ -90,7 +92,13 @@ def process_message(text):
             f"句子：{cleaned}"
         )
 
-    return query_gemini(prompt)
+    gemini_reply = query_gemini(prompt)
+
+    if mentions:
+        mention_line = " ".join(mentions)
+        gemini_reply += f"\n\n{mention_line}"
+
+    return gemini_reply
 
 def query_gemini(prompt):
     headers = {"Content-Type": "application/json"}
@@ -124,7 +132,6 @@ def reply_message(token, message):
     requests.post("https://api.line.me/v2/bot/message/reply", headers=headers, json=body)
 
 def push_unsend_notice(user_id):
-    """Simulate deletion message by pushing a ghost message"""
     headers = {
         "Authorization": f"Bearer {LINE_CHANNEL_ACCESS_TOKEN}",
         "Content-Type": "application/json"
