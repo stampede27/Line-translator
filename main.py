@@ -101,22 +101,40 @@ def process_message(text):
     return gemini_reply
 
 def query_gemini(prompt):
-    headers = {"Content-Type": "application/json"}
+    headers = {
+        "Content-Type": "application/json"
+    }
+
     body = {
         "contents": [
-            {"parts": [{"text": prompt}]}
+            {
+                "parts": [
+                    {
+                        "text": prompt
+                    }
+                ]
+            }
         ]
     }
 
-    response = requests.post(GEMINI_API_URL, headers=headers, json=body)
+    response = requests.post(
+        GEMINI_API_URL,
+        headers=headers,
+        json=body
+    )
+
+    print("========== GEMINI ==========")
+    print("Status Code:", response.status_code)
+    print("Body:")
+    print(response.text)
+    print("============================")
 
     try:
-        result = response.json()["candidates"][0]["content"]["parts"][0]["text"]
-        return result
-    except Exception as e:
-        print("Gemini error:", response.text)
-        return "⚠️ Gemini 無法處理這個訊息。"
-
+        data = response.json()
+        return data["candidates"][0]["content"]["parts"][0]["text"]
+    except Exception:
+        return "⚠️ Gemini API Error"
+        
 def reply_message(token, message):
     headers = {
         "Authorization": f"Bearer {LINE_CHANNEL_ACCESS_TOKEN}",
