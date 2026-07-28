@@ -101,9 +101,7 @@ def process_message(text):
     return gemini_reply
 
 def query_gemini(prompt):
-    headers = {
-        "Content-Type": "application/json"
-    }
+    headers = {"Content-Type": "application/json"}
 
     body = {
         "contents": [
@@ -123,17 +121,16 @@ def query_gemini(prompt):
         json=body
     )
 
-    print("========== GEMINI ==========")
-    print("Status Code:", response.status_code)
-    print("Body:")
+    print("===== GEMINI DEBUG =====")
+    print("Status:", response.status_code)
     print(response.text)
-    print("============================")
+    print("========================")
 
-    try:
-        data = response.json()
-        return data["candidates"][0]["content"]["parts"][0]["text"]
-    except Exception:
-        return "⚠️ Gemini API Error"
+    response.raise_for_status()
+
+    data = response.json()
+
+    return data["candidates"][0]["content"]["parts"][0]["text"]
         
 def reply_message(token, message):
     headers = {
