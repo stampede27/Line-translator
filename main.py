@@ -117,29 +117,29 @@ def query_gemini(prompt):
         ]
     }
 
-    try:
-        response = requests.post(
-            GEMINI_API_URL,
-            headers=headers,
-            json=body,
-            timeout=30
-        )
+    response = requests.post(
+        GEMINI_API_URL,
+        headers=headers,
+        json=body,
+        timeout=30
+    )
 
-        print("========================")
-        print("Status:", response.status_code)
-        print(response.text)
-        print("========================")
+    print("========== GEMINI ==========")
+    print("Status:", response.status_code)
+    print(response.text)
+    print("============================")
 
-        response.raise_for_status()
+    data = response.json()
 
-        data = response.json()
+    # If Gemini returned an error
+    if "error" in data:
+        print("Gemini Error:", data["error"])
 
-        return data["candidates"][0]["content"]["parts"][0]["text"]
-        
-    except requests.exceptions.HTTPError as e:
-    if response.status_code == 429:
-        return "⚠️ Gemini is temporarily busy or the API quota has been reached. Please try again in a few minutes."
-    return f"Gemini HTTP Error: {response.status_code}"
+        message = data["error"].get("message", "Unknown error")
+
+        return f"⚠️ Gemini Error:\n{message}"
+
+    return data["candidates"][0]["content"]["parts"][0]["text"]
         
 def reply_message(token, message):
     headers = {
