@@ -135,15 +135,11 @@ def query_gemini(prompt):
         data = response.json()
 
         return data["candidates"][0]["content"]["parts"][0]["text"]
-
-    except Exception as e:
-        print("GEMINI EXCEPTION:")
-        print(e)
-
-        if 'response' in locals():
-            print(response.text)
-
-        return f"Gemini Error: {e}"
+        
+    except requests.exceptions.HTTPError as e:
+    if response.status_code == 429:
+        return "⚠️ Gemini is temporarily busy or the API quota has been reached. Please try again in a few minutes."
+    return f"Gemini HTTP Error: {response.status_code}"
         
 def reply_message(token, message):
     headers = {
