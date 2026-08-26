@@ -109,8 +109,10 @@ def process_message(text):
     return gemini_reply
 
 def query_gemini(prompt):
+
     headers = {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "x-goog-api-key": GEMINI_API_KEY
     }
 
     body = {
@@ -125,29 +127,137 @@ def query_gemini(prompt):
         ]
     }
 
-    response = requests.post(
-        GEMINI_API_URL,
-        headers=headers,
-        json=body,
-        timeout=30
-    )
+    try:
 
-    print("========== GEMINI ==========")
-    print("Status:", response.status_code)
-    print(response.text)
-    print("============================")
+        response = requests.post(
+            GEMINI_API_URL,
+            headers=headers,
+            json=body,
+            timeout=30
+        )
 
-    data = response.json()
+        print("========== GEMINI ==========")
+        print("Status:", response.status_code)
+        print(response.text)
+        print("============================")
 
-    # If Gemini returned an error
-    if "error" in data:
-        print("Gemini Error:", data["error"])
+        data = response.json()
 
-        message = data["error"].get("message", "Unknown error")
+        # ---------------------------------------------
+        # GEMINI ERROR
+        # ---------------------------------------------
 
-        return f"⚠️ Gemini Error:\n{message}"
+        if "error" in data:
 
-    return data["candidates"][0]["content"]["parts"][0]["text"]
+            print("Gemini Error:", data["error"])
+
+            error_code = data["error"].get(
+                "code",
+                response.status_code
+            )
+
+            error_message = data["error"].get(
+                "message",
+                "Unknown Gemini error"
+            )
+
+            print(
+                f"Gemini HTTP {error_code}: "
+                f"{error_message}"
+            )
+
+            return (
+                "⚠️ TranslatorLINE AI\n\n"
+                "The translation service is temporarily "
+                "unavailable.\n\n"
+                "The server needs an update or maintenance.\n\n"
+                "Please contact Emil."
+            )
+
+        # ---------------------------------------------
+        # SUCCESS
+        # ---------------------------------------------
+
+        candidates = data.get("candidates", [])
+
+        if not candidates:
+
+            print(
+                "Gemini returned no candidates."
+            )
+
+            return (
+                "⚠️ TranslatorLINE AI\n\n"
+                "The translation service is temporarily "
+                "unavailable.\n\n"
+                "Please contact Emil."
+            )
+
+        parts = candidates[0].get(
+            "content", {}
+        ).get(
+            "parts",
+            []
+        )
+
+        if not parts:
+
+            print(
+                "Gemini returned no text."
+            )
+
+            return (
+                "⚠️ TranslatorLINE AI\n\n"
+                "The translation service is temporarily "
+                "unavailable.\n\n"
+                "Please contact Emil."
+            )
+
+        return parts[0].get(
+            "text",
+            ""
+        ).strip()
+
+    except requests.exceptions.Timeout:
+
+        print(
+            "Gemini request timed out."
+        )
+
+        return (
+            "⚠️ TranslatorLINE AI\n\n"
+            "The translation service is temporarily "
+            "unavailable.\n\n"
+            "Please contact Emil."
+        )
+
+    except requests.exceptions.RequestException as e:
+
+        print(
+            "Gemini request failed:",
+            str(e)
+        )
+
+        return (
+            "⚠️ TranslatorLINE AI\n\n"
+            "The translation service is temporarily "
+            "unavailable.\n\n"
+            "Please contact Emil."
+        )
+
+    except Exception as e:
+
+        print(
+            "Unexpected Gemini error:",
+            str(e)
+        )
+
+        return (
+            "⚠️ TranslatorLINE AI\n\n"
+            "The translation service is temporarily "
+            "unavailable.\n\n"
+            "Please contact Emil."
+        )
         
 def reply_message(token, message):
     headers = {
