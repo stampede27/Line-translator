@@ -116,16 +116,21 @@ def query_gemini(prompt):
     }
 
     body = {
-        "contents": [
-            {
-                "parts": [
-                    {
-                        "text": prompt
-                    }
-                ]
-            }
-        ]
+    "contents": [
+        {
+            "parts": [
+                {
+                    "text": prompt
+                }
+            ]
+        }
+    ],
+    "generationConfig": {
+        "thinkingConfig": {
+            "thinkingLevel": "minimal"
+        }
     }
+}
 
     try:
 
