@@ -11,7 +11,14 @@ app = Flask(__name__)
 LINE_CHANNEL_ACCESS_TOKEN = os.environ['LINE_CHANNEL_ACCESS_TOKEN']
 GEMINI_API_KEY = os.environ['GEMINI_API_KEY']
 
-GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
+GEMINI_API_URL = (
+
+    f"https://generativelanguage.googleapis.com/"
+
+    f"v1beta/models/{GEMINI_MODEL}:generateContent"
+
+)
+
 
 # In-memory store of messageId to userId (or reply tokens) and timestamp
 message_map = defaultdict(dict)
