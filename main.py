@@ -86,7 +86,7 @@ def process_message(text):
 
     if lang == "en":
         prompt = (
-            "You are a bilingual assistant. Rephrase the following English sentence "
+            "You are a bilingual assistant. Fix the grammar of the following English sentence "
             "without changing its meaning, then translate it to Traditional Chinese. "
             "Do not add any explanation or suggestions. Only output the following format:\n\n"
             "Rephrase sentence:\n{rephrased sentence}\n\nTranslation in Chinese:\n{chinese sentence}\n\n"
