@@ -11,6 +11,7 @@ app = Flask(__name__)
 LINE_CHANNEL_ACCESS_TOKEN = os.environ['LINE_CHANNEL_ACCESS_TOKEN']
 GEMINI_API_KEY = os.environ['GEMINI_API_KEY']
 
+GEMINI_MODEL = "gemini-3.6-flash"
 GEMINI_API_URL = (
 
     f"https://generativelanguage.googleapis.com/"
